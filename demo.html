@@ -1,0 +1,84 @@
+<html>
+<body id="ui">
+<!--<script type="text/javascript" client="bin/holystone-hs110w-client.bundle.js"></script>-->
+<canvas id="stream"></canvas>
+<script type="text/javascript" src="lib/jsmpeg.js"></script>
+<script type="text/javascript">
+  var client = new WebSocket('ws://localhost:8090');
+  var player = new jsmpeg(client, {
+    canvas: document.getElementById('stream') // Canvas should be a canvas DOM element
+  });
+  var apiClient = new WebSocket('ws://localhost:8070');
+  apiClient.onmessage = (event) => {
+    console.log('message received:', event.data);
+  };
+
+  var defaultCommandSettings = {
+    lift: 0x7f,
+    turn: 0x3f,
+    advance: 0xc0,
+    strafe: 0x3f,
+    yaw: 0x90,
+    pitch: 0x10,
+    roll: 0x10,
+    throttle: 0x40
+  };
+
+  var stopCommandSettings = Object.assign(
+    {},
+    defaultCommandSettings,
+    {
+      lift: 0x3f,
+    }
+  );
+
+  var controlLayout = {
+    'ArrowUp': {commandName: 'lift', amount: 0x3f},
+    'ArrowDown': {commandName: 'lift', amount: 0xff},
+    'ArrowLeft': {commandName: 'turn', amount: 0x00},
+    'ArrowRight': {commandName: 'turn', amount: 0x7f},
+    'w': {commandName: 'advance', amount: 0x00},
+    's': {commandName: 'advance', amount: 0x7f},
+    'a': {commandName: 'strafe', amount: 0x00},
+    'd': {commandName: 'strafe', amount: 0x7f}
+  };
+
+  var stopped = false;
+
+  var commandSettings = Object.assign({}, defaultCommandSettings);
+
+
+  apiClient.onopen = function () {
+    apiClient.send(JSON.stringify({type:'flight', args:commandSettings}));
+    var videoEnabled = false;
+    var ui = document.getElementById("ui");
+    ui.onkeydown = function (e) {
+      e.preventDefault();
+      console.log('key pressed: ', e.key);
+      if (e.key === 'Escape') {
+        apiClient.send(JSON.stringify({type:'enabled', args: {enabled: false}}));
+      } else if (e.key === 'Enter') {
+        apiClient.send(JSON.stringify({type:'enabled', args: {enabled: true}}));
+      } else if (e.key === 'r') {
+        //start video recording
+        videoEnabled = !videoEnabled;
+        apiClient.send(JSON.stringify({type:'video', args: {enabled: videoEnabled}}));
+      } else if (controlLayout[e.key]) {
+        var controlCommand = controlLayout[e.key];
+        commandSettings[controlCommand.commandName] = controlCommand.amount;
+        apiClient.send(JSON.stringify({type: 'flight', args: commandSettings}));
+      }
+      };
+    ui.onkeyup = function (e) {
+      e.preventDefault();
+      var controlCommand = controlLayout[e.key];
+      if (!controlCommand) {
+        return;
+      }
+      commandSettings[controlCommand.commandName] = defaultCommandSettings[controlCommand.commandName];
+      apiClient.send(JSON.stringify({type:'flight', args:commandSettings}));
+    }
+  };
+</script>
+</body>
+</html>
