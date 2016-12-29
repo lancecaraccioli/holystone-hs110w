@@ -4,7 +4,7 @@ UAV Web Interface For Holy Stone HS110W
 * Start UAV
 * Connect Computer To UAV's Network (Wifi)
 * Start the API
-  * bash
+
     ```bash
     cd $PROJECT_ROOT/
     node server/api
