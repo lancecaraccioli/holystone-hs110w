@@ -10,7 +10,7 @@ UAV Web Interface For Holy Stone HS110W
     node server/api
     ```
 * Load demo.html in Chrome (only browser tested so far)
-* Use Arrow Keys for lift and orientation
+* Use Arrow Keys for lift (inverted) and orientation
 * Use W,A,S,D for forward/back and strafe
 * Use R to toggle (on/off) video recording
 * Use Enter to start flight
