@@ -15,3 +15,6 @@ UAV Web Interface For Holy Stone HS110W
 * Use R to toggle (on/off) video recording
 * Use Enter to start flight
 * Use Escape to end flight
+
+# See how this project started.
+Visit the YouTube [Playlist](https://www.youtube.com/playlist?list=PLpHT6X3LN-Amqd7kelDDfwG6Lrbuwd6X1)
